@@ -1,0 +1,11 @@
+// src/routes/authRoutes.ts
+import express from 'express';
+import { register, login, verifyCode } from '../controllers/authController';
+
+const router = express.Router();
+
+router.post('/register', register);
+router.post('/login', login);
+router.post('/verifyCode', verifyCode);
+
+export default router;
