@@ -21,10 +21,13 @@ const app = express();
 app.use(
   cors({
     origin: [
-      process.env.FRONTEND_URL || 'https://proyectoo-psi.vercel.app/',
+      process.env.FRONTEND_URL || 'https://pr-2-proyecto-univalle-front-end-q7.vercel.app',
+      'https://proyectoo-psi.vercel.app',
       /^https:\/\/.*\.vercel\.app$/
     ],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   }),
 );
 app.use(express.json());
