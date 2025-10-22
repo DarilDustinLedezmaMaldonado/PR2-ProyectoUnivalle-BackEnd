@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev --respawn src/server.ts",
-    "build": "tsc",
+    "build": "npm install && tsc",
     "start": "node dist/server.js",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
@@ -40,7 +40,9 @@
     "@types/morgan": "^1.9.9",
     "@types/nodemailer": "^6.4.17",
     "@types/node": "^22.15.17",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "@types/bcrypt": "^5.0.2",
+    "@types/bcryptjs": "^2.4.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.26.0",
