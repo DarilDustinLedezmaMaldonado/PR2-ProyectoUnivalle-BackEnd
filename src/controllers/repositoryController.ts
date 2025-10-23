@@ -7,6 +7,14 @@ import mongoose from "mongoose";
 // 🧩 Crear un nuevo repositorio
 export const createRepository = async (req: Request, res: Response): Promise<void> => {
   try {
+    // Logging para depuración de peticiones desde frontend
+    const path = req.originalUrl || req.path;
+    const authHeader = (req.headers.authorization as string) || '';
+    const tokenSnippet = authHeader ? authHeader.slice(0, 15) + '...' : 'no-token';
+    // No logueamos datos sensibles: solo nombre y número de miembros
+    const { name: logName, memberEmails: logMembers } = req.body as any;
+    logger.info('createRepository called', { path, tokenSnippet, name: logName, memberEmailsCount: Array.isArray(logMembers) ? logMembers.length : 0 });
+
     const ownerId = (req as Request & { user: { id: string } }).user.id;
     const {
       name,
