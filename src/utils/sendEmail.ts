@@ -1,26 +1,16 @@
-import nodemailer from 'nodemailer';
+import * as SibApiV3Sdk from '@sendinblue/client';
 
 export const sendVerificationEmail = async (to: string, code: string) => {
-  console.log('📧 Configurando envío de correo...');
-  console.log('📧 EMAIL_USER configurado:', !!process.env.EMAIL_USER);
-  console.log('📧 EMAIL_PASS configurado:', !!process.env.EMAIL_PASS);
-
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    throw new Error('EMAIL_USER y EMAIL_PASS deben estar configurados');
+  console.log('📧 Configurando envío de correo con Brevo...');
+  
+  if (!process.env.BREVO_API_KEY) {
+    throw new Error('BREVO_API_KEY debe estar configurado');
   }
 
-  console.log('📧 Creando transporter...');
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-    logger: true,   // agrega logs
-    debug: true,    // más detalles de la conexión SMTP
-  });
+  const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+  
+  // Configura la API key
+  apiInstance.setApiKey(SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
 
 
   const mailOptions = {
@@ -53,13 +43,18 @@ export const sendVerificationEmail = async (to: string, code: string) => {
   try {
     console.log('📧 Intentando enviar correo...');
 
-    // Crear una promesa con timeout
-    const sendPromise = transporter.sendMail(mailOptions);
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Timeout al enviar correo')), 50000)
-    );
+    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+    
+    sendSmtpEmail.to = [{ email: to }];
+    sendSmtpEmail.sender = { 
+      email: process.env.BREVO_FROM_EMAIL || 'tu-email-verificado@dominio.com',
+      name: 'Hansa Sistema'
+    };
+    sendSmtpEmail.subject = 'Código de verificación - Hansa';
+    sendSmtpEmail.textContent = `Tu código de verificación es: ${code}\n\nEste código expira en 10 minutos.`;
+    sendSmtpEmail.htmlContent = mailOptions.html;
 
-    const result = await Promise.race([sendPromise, timeoutPromise]);
+    const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
     console.log('📧 Correo enviado exitosamente:');
     console.log('📧 Respuesta completa:', result);
     return result;
