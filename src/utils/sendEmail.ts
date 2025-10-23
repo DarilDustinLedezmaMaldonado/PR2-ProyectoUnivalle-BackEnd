@@ -3,14 +3,22 @@ import * as SibApiV3Sdk from '@sendinblue/client';
 export const sendVerificationEmail = async (to: string, code: string) => {
   console.log('📧 Configurando envío de correo con Brevo...');
   
-  if (!process.env.BREVO_API_KEY) {
+  const apiKey = process.env.BREVO_API_KEY;
+  if (!apiKey) {
+    console.error('❌ Error: BREVO_API_KEY no está configurado en las variables de entorno');
     throw new Error('BREVO_API_KEY debe estar configurado');
   }
 
+  console.log('🔑 Configurando API key de Brevo...');
   const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
   
-  // Configura la API key
-  apiInstance.setApiKey(SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
+  try {
+    apiInstance.setApiKey(SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey, apiKey);
+    console.log('✅ API key configurada correctamente');
+  } catch (error) {
+    console.error('❌ Error al configurar API key:', error);
+    throw error;
+  }
 
 
   const mailOptions = {
