@@ -68,6 +68,11 @@ export const createRepository = async (req: Request, res: Response): Promise<voi
 // 🧩 Obtener repositorios del usuario
 export const getMyRepositories = async (req: Request, res: Response): Promise<void> => {
   try {
+    const path = req.originalUrl || req.path;
+    const authHeader = (req.headers.authorization as string) || '';
+    const tokenSnippet = authHeader ? authHeader.slice(0, 15) + '...' : 'no-token';
+    logger.info('getMyRepositories called', { path, tokenSnippet });
+
     const userId = (req as Request & { user: { id: string } }).user.id;
 
     const repos = await Repository.find({
@@ -77,7 +82,8 @@ export const getMyRepositories = async (req: Request, res: Response): Promise<vo
       .populate("owner", "username email")
       .populate("members", "username email");
 
-    res.status(200).json(repos);
+  logger.info('getMyRepositories result count', { count: repos.length });
+  res.status(200).json(repos);
   } catch (error) {
     logger.error("Error al obtener repositorios del usuario:", error);
     res.status(500).json({ message: "Error interno del servidor" });
