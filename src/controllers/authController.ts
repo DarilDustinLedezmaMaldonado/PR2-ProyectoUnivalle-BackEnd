@@ -13,11 +13,13 @@ export const register = async (req: Request, res: Response) => {
 
     if (!username || !email || !password) {
       res.status(400).json({ message: 'Todos los campos son obligatorios.' });
+      return;
     }
 
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) {
       res.status(400).json({ message: 'El usuario o email ya están en uso.' });
+      return;
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -25,11 +27,13 @@ export const register = async (req: Request, res: Response) => {
     await newUser.save();
 
     // 👇 Crear el repositorio personal del usuario
+    // Crear repositorio personal usando los campos correctos del schema Repository
     const personalRepo = new Repository({
       name: `Repositorio de ${username}`,
       description: 'Repositorio personal del usuario',
-      type: 'personal',
-      linkedToUser: newUser._id,
+      typeRepo: 'simple', // tipo por defecto para repositorio personal
+      category: 'personal',
+      privacy: 'private',
       owner: newUser._id,
       members: [newUser._id],
       files: [],
