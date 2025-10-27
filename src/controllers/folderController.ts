@@ -54,3 +54,35 @@ export const listFolders = async (req: Request, res: Response): Promise<void> =>
     res.status(500).json({ message: 'Error interno al listar carpetas' });
   }
 };
+
+// Obtener una carpeta y su cadena de ancestros (desde la raíz hasta la carpeta solicitada)
+export const getFolderAncestors = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      res.status(400).json({ message: 'folder id requerido' });
+      return;
+    }
+
+    const ancestors: any[] = [];
+    let current = await Folder.findById(id);
+    if (!current) {
+      res.status(404).json({ message: 'Carpeta no encontrada' });
+      return;
+    }
+
+    // Recolectamos hasta la raíz
+    while (current) {
+      ancestors.push({ _id: current._id, name: current.name, parent: current.parent });
+      if (!current.parent) break;
+      current = await Folder.findById(current.parent);
+    }
+
+    // ancestors currently: [current, parent, grandparent, ...] -> invertimos
+    const chain = ancestors.reverse();
+    res.status(200).json(chain);
+  } catch (error) {
+    logger.error('Error obteniendo ancestros de carpeta:', error);
+    res.status(500).json({ message: 'Error interno al obtener ancestros' });
+  }
+};
