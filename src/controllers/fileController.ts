@@ -21,7 +21,7 @@ export const uploadFile: RequestHandler = async (req, res) => {
       return;
     }
 
-    const { title, author, description, tags, repositoryId, importance, privacy } = req.body;
+  const { title, author, description, tags, repositoryId, importance, privacy, folderId } = req.body;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const metadata: any = {
@@ -37,6 +37,14 @@ export const uploadFile: RequestHandler = async (req, res) => {
 
     if (repositoryId) {
       metadata.repositoryId = new mongoose.Types.ObjectId(repositoryId);
+    }
+    // Si se envía folderId, lo guardamos en metadata (para filtrar después)
+    if (folderId) {
+      try {
+        metadata.folderId = new mongoose.Types.ObjectId(folderId);
+      } catch (err) {
+        // Si folderId no es un ObjectId válido, lo ignoramos (validación puede hacerse en frontend/backend adicional)
+      }
     }
 
     const uploadStream = gfsBucket.openUploadStream(file.originalname, {
@@ -85,14 +93,29 @@ export const uploadFile: RequestHandler = async (req, res) => {
 export const getFilesByRepositoryId: RequestHandler = async (req, res) => {
   try {
     const { repositoryId } = req.params;
+    const { folderId } = req.query;
     const db = getDb();
 
-    const files = await db
-      .collection('uploads.files')
-      .find({
-        'metadata.repositoryId': new ObjectId(repositoryId),
-      })
-      .toArray();
+    const baseFilter: any = { 'metadata.repositoryId': new ObjectId(repositoryId) };
+
+    // Si folderId está presente en la query, filtramos por ese folder
+    if (folderId) {
+      try {
+        baseFilter['metadata.folderId'] = new ObjectId(String(folderId));
+      } catch (err) {
+        // si folderId no es válido, devolvemos 400
+        res.status(400).json({ message: 'folderId inválido' });
+        return;
+      }
+    } else {
+      // Si no se especifica folderId, mostramos solo archivos que NO tienen folderId (raíz)
+      baseFilter['$or'] = [
+        { 'metadata.folderId': { $exists: false } },
+        { 'metadata.folderId': null },
+      ];
+    }
+
+    const files = await db.collection('uploads.files').find(baseFilter).toArray();
     if (!files || files.length === 0) {
       console.log('No se encontraron archivos para este repositorio');
     }

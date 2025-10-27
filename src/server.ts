@@ -14,6 +14,7 @@ import uploadRoute from './routes/uploadRoute';
 
 import fileRoutes from './routes/fileRoutes';
 import repositoryRoutes from './routes/repositoryRoutes';
+import folderRoutes from './routes/folderRoutes';
 
 dotenv.config();
 
@@ -45,6 +46,7 @@ app.use('/api/files', fileRoutes);
 app.use('/api/repositorios', repositoryRoutes);
 app.use('/api/users', userRoutes); 
 app.use('/api/upload', uploadRoute);
+app.use('/api/folders', folderRoutes);
 
 mongoose
   .connect(process.env.MONGODB_URI!)

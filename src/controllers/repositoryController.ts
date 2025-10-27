@@ -101,18 +101,33 @@ export const getMyRepositories = async (req: Request, res: Response): Promise<vo
 // 🧩 Obtener archivos asociados a un repositorio
 export const getFilesByRepository = async (req: Request, res: Response): Promise<void> => {
   const repositoryId = req.params.id;
+  const { folderId } = req.query;
   const db = mongoose.connection.db;
 
   try {
-    const files = await db
-      .collection("uploads.files")
-      .find({ "metadata.repositoryId": repositoryId })
-      .toArray();
+    const baseFilter: any = { 'metadata.repositoryId': new mongoose.Types.ObjectId(repositoryId) };
+
+    if (folderId) {
+      // folderId enviado por query string
+      try {
+        baseFilter['metadata.folderId'] = new mongoose.Types.ObjectId(String(folderId));
+      } catch (err) {
+        res.status(400).json({ message: 'folderId inválido' });
+        return;
+      }
+    } else {
+      baseFilter['$or'] = [
+        { 'metadata.folderId': { $exists: false } },
+        { 'metadata.folderId': null },
+      ];
+    }
+
+    const files = await db.collection('uploads.files').find(baseFilter).toArray();
 
     res.status(200).json(files);
   } catch (error) {
-    logger.error("Error al obtener archivos por repositorio:", error);
-    res.status(500).json({ message: "Error al obtener archivos" });
+    logger.error('Error al obtener archivos por repositorio:', error);
+    res.status(500).json({ message: 'Error al obtener archivos' });
   }
 };
 
