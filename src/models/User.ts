@@ -23,6 +23,7 @@ export interface IUser extends Document {
   contacto: string;
   hobbies: string[];
   profileImage: string; // URL de la imagen de perfil
+  theme?: string; // Tema de la interfaz
 }
 
 const UserSchema: Schema = new Schema({
@@ -46,6 +47,7 @@ const UserSchema: Schema = new Schema({
   contacto: { type: String },
   hobbies: [{ type: String }],
   profileImage: { type: String },
+  theme: { type: String, default: 'azul-morado' },
 });
 
 // Hash password before saving

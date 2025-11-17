@@ -19,6 +19,7 @@ router.put('/:id', async (req, res) => {
           contacto: req.body.contacto,
           hobbies: req.body.hobbies,
           profileImage: req.body.profileImage,
+          theme: req.body.theme,
         },
       },
       { new: true },
