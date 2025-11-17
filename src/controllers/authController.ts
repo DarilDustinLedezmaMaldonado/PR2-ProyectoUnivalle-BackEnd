@@ -59,11 +59,13 @@ export const login = async (req: Request, res: Response) => {
     const user = await User.findOne({ username });
     if (!user) {
       res.status(400).json({ message: 'Credenciales inválidas.' });
+      return;
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       res.status(400).json({ message: 'Credenciales inválidas.' });
+      return;
     }
     const token = jwt.sign(
       { id: user._id, username: user.username, email: user.email },
@@ -112,14 +114,17 @@ export const verifyCode = async (req: Request, res: Response) => {
     const user = await User.findOne({ username });
     if (!user) {
       res.status(400).json({ message: 'Usuario no encontrado.' });
+      return;
     }
 
     if (user.verificationCode !== code) {
       res.status(400).json({ message: 'Código inválido.' });
+      return;
     }
 
     if (user.verificationCodeExpires && user.verificationCodeExpires < new Date()) {
       res.status(400).json({ message: 'El código ha expirado.' });
+      return;
     }
 
     // Código correcto → Generamos JWT
