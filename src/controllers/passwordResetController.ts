@@ -4,12 +4,13 @@ import crypto from 'crypto';
 import { sendEmail } from '../utils/sendEmail';
 
 // Solicitar restablecimiento de contraseña
-export const requestPasswordReset = async (req: Request, res: Response) => {
+export const requestPasswordReset = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).json({ message: 'El email es requerido' });
+      res.status(400).json({ message: 'El email es requerido' });
+      return;
     }
 
     // Buscar usuario por email
@@ -17,9 +18,10 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
 
     if (!user) {
       // Por seguridad, no revelamos si el usuario existe
-      return res.status(200).json({ 
+      res.status(200).json({ 
         message: 'Si el correo existe, recibirás instrucciones para restablecer tu contraseña' 
       });
+      return;
     }
 
     // Generar token de restablecimiento
@@ -82,17 +84,19 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
 };
 
 // Restablecer contraseña con token
-export const resetPassword = async (req: Request, res: Response) => {
+export const resetPassword = async (req: Request, res: Response): Promise<void> => {
   try {
     const { token, newPassword } = req.body;
 
     if (!token || !newPassword) {
-      return res.status(400).json({ message: 'Token y nueva contraseña son requeridos' });
+      res.status(400).json({ message: 'Token y nueva contraseña son requeridos' });
+      return;
     }
 
     // Validar longitud de contraseña
     if (newPassword.length < 8) {
-      return res.status(400).json({ message: 'La contraseña debe tener al menos 8 caracteres' });
+      res.status(400).json({ message: 'La contraseña debe tener al menos 8 caracteres' });
+      return;
     }
 
     // Hash del token para comparar
@@ -105,9 +109,10 @@ export const resetPassword = async (req: Request, res: Response) => {
     });
 
     if (!user) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         message: 'Token inválido o expirado. Solicita un nuevo enlace de recuperación.' 
       });
+      return;
     }
 
     // Actualizar contraseña
@@ -129,12 +134,13 @@ export const resetPassword = async (req: Request, res: Response) => {
 };
 
 // Verificar validez de token (opcional, para UI)
-export const verifyResetToken = async (req: Request, res: Response) => {
+export const verifyResetToken = async (req: Request, res: Response): Promise<void> => {
   try {
     const { token } = req.params;
 
     if (!token) {
-      return res.status(400).json({ message: 'Token es requerido' });
+      res.status(400).json({ message: 'Token es requerido' });
+      return;
     }
 
     const resetTokenHash = crypto.createHash('sha256').update(token).digest('hex');
@@ -145,10 +151,11 @@ export const verifyResetToken = async (req: Request, res: Response) => {
     });
 
     if (!user) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         valid: false,
         message: 'Token inválido o expirado' 
       });
+      return;
     }
 
     res.status(200).json({ 
