@@ -1,5 +1,6 @@
 // ✅ src/models/User.ts
 import mongoose, { Schema, Document } from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 export interface IUser extends Document {
   username: string;
@@ -45,6 +46,22 @@ const UserSchema: Schema = new Schema({
   contacto: { type: String },
   hobbies: [{ type: String }],
   profileImage: { type: String },
+});
+
+// Hash password before saving
+UserSchema.pre('save', async function (next) {
+  // Solo hashear si la contraseña fue modificada o es nueva
+  if (!this.isModified('password')) {
+    return next();
+  }
+
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password as string, salt);
+    next();
+  } catch (error: any) {
+    next(error);
+  }
 });
 
 export default mongoose.model<IUser>('User', UserSchema);
