@@ -16,6 +16,7 @@ import fileRoutes from './routes/fileRoutes';
 import repositoryRoutes from './routes/repositoryRoutes';
 import folderRoutes from './routes/folderRoutes';
 import invitationRoutes from './routes/invitationRoutes';
+import passwordResetRoutes from './routes/passwordResetRoutes';
 
 dotenv.config();
 
@@ -49,6 +50,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/upload', uploadRoute);
 app.use('/api/folders', folderRoutes);
 app.use('/api/invitations', invitationRoutes);
+app.use('/api/password-reset', passwordResetRoutes);
 
 mongoose
   .connect(process.env.MONGODB_URI!)

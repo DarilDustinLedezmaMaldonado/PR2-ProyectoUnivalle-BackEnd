@@ -1,5 +1,38 @@
 import * as SibApiV3Sdk from '@sendinblue/client';
 
+// Función genérica para enviar emails
+export const sendEmail = async (to: string, subject: string, htmlContent: string) => {
+  console.log('📧 Configurando envío de correo con Brevo...');
+  
+  const apiKey = process.env.BREVO_API_KEY;
+  if (!apiKey) {
+    console.error('❌ Error: BREVO_API_KEY no está configurado en las variables de entorno');
+    throw new Error('BREVO_API_KEY debe estar configurado');
+  }
+
+  const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+  apiInstance.setApiKey(SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey, apiKey);
+
+  try {
+    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+    
+    sendSmtpEmail.to = [{ email: to }];
+    sendSmtpEmail.sender = { 
+      email: process.env.BREVO_FROM_EMAIL || 'tu-email-verificado@dominio.com',
+      name: 'Hansa Sistema'
+    };
+    sendSmtpEmail.subject = subject;
+    sendSmtpEmail.htmlContent = htmlContent;
+
+    const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
+    console.log('📧 Correo enviado exitosamente a:', to);
+    return result;
+  } catch (error: any) {
+    console.error('📧 Error al enviar correo:', error);
+    throw error;
+  }
+};
+
 export const sendVerificationEmail = async (to: string, code: string) => {
   console.log('📧 Configurando envío de correo con Brevo...');
   

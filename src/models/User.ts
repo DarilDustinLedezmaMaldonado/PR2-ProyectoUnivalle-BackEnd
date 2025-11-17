@@ -5,10 +5,13 @@ export interface IUser extends Document {
   username: string;
   email: string;
   password: string;
+  fullname?: string;
   repositories: mongoose.Types.ObjectId[];
   createdAt: Date;
   verificationCode: string;
   verificationCodeExpires: Date;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
 
   nombre: string;
   apellido: string;
@@ -25,10 +28,13 @@ const UserSchema: Schema = new Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  fullname: { type: String },
   repositories: [{ type: Schema.Types.ObjectId, ref: 'Repository' }],
   createdAt: { type: Date, default: Date.now },
   verificationCode: { type: String },
   verificationCodeExpires: { type: Date },
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date },
 
   nombre: { type: String },
   apellido: { type: String },
