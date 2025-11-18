@@ -15,10 +15,27 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
   cloudinary,
-  params: async (req, file) => ({
-    public_id: `perfiles/${Date.now()}-${file.originalname}`,
-    allowed_formats: ['jpg', 'png', 'jpeg'],
-  }),
+  params: async (req, file) => {
+    // Definir formatos permitidos para archivos informáticos
+    const allowedFormats = [
+      'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', // Imágenes
+      'pdf', // PDF
+      'doc', 'docx', // Word
+      'xls', 'xlsx', // Excel  
+      'ppt', 'pptx', // PowerPoint
+      'txt', 'md', 'csv', // Texto
+      'zip', 'rar', '7z', // Comprimidos
+      'mp3', 'wav', 'ogg', // Audio
+      'mp4', 'avi', 'mov', 'mkv', 'webm', // Video
+      'json', 'xml', 'html', 'css', 'js', 'ts', // Código
+    ];
+
+    return {
+      public_id: `perfiles/${Date.now()}-${file.originalname}`,
+      allowed_formats: allowedFormats,
+      resource_type: 'auto', // Permite subir cualquier tipo de archivo
+    };
+  },
 });
 
 const upload = multer({ storage });
