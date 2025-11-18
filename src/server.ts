@@ -9,6 +9,7 @@ import mongoose from 'mongoose';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import uploadRoute from './routes/uploadRoute';
+import configRoutes from './routes/configRoutes';
 //const uploadRoute = require("./routes/uploadRoute");
 //const auth = require("./middleware/auth");
 
@@ -48,6 +49,7 @@ app.use('/api/files', fileRoutes);
 app.use('/api/repositorios', repositoryRoutes);
 app.use('/api/users', userRoutes); 
 app.use('/api/upload', uploadRoute);
+app.use('/api/config', configRoutes);
 app.use('/api/folders', folderRoutes);
 app.use('/api/invitations', invitationRoutes);
 app.use('/api/password-reset', passwordResetRoutes);
